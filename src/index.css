@@ -3,3 +3,41 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+.footer {
+	background-color: grey;
+	font-weight: bold;
+	font-size: 20px;
+}
+
+.progress {
+	background-color: blue;
+	font-size: 18px;
+	border-style: dotted;
+}
+
+.error {
+	border-style: solid;
+	font-size: 16px;
+	background-color: red;
+}
+
+table tr td {
+	border-right: solid;
+	border-bottom: solid;
+}
+
+.project {
+	padding: 10px;
+	color: blue;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.highlight {
+	background-color: red;
+}
+
+.offline {
+	text-decoration: line-through;
+	color: red;
+}

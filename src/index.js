@@ -1,33 +1,35 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import drone from './drone.jpg';
-import config from './config.js';
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import drone from "./drone.jpg";
+import {config} from './config.js';
 
 function Footer(props) {
 	return (
 		<div className="footer">
-			<span>Devices will be contated automatically after {props.refreshTime} seconds and updated.</span>
-			<a onClick={props.onClick}>Can't wait? Contact now</a>
-		</div>
-	);
-}
-
-function ProgressMessage(props) {
-	return (
-		<div className="progress" style={props.style}>
-			<span>Contacting Servers to fetch devices and their status....</span>
+			<span>Devices will be contated  and updated automatically after {props.refreshTime} seconds.</span><br/>
+			<span>Offline Devices will have a line through on their row and in red.</span><br/>
+			<span>Devices not moving for more than 10 secs will be highlighted in red background.</span><br/>
 		</div>
 	);
 }
 
 function DevicesDetail(props) {
+	const getDeviceRowFormatting = (customDeviceParam) => {
+		let css = "";
+		if(customDeviceParam.moved === 0 && customDeviceParam.speed === 0 && customDeviceParam.previousCoordinates) {
+			css = "highlight";
+		} else if(!customDeviceParam.found) {
+			css = "offline";
+		}
+		return css;
+	};
 
 	const getDevices = props.devices.map((_value, _index) => {
 		return (
-			<tr key={_index}>
+			<tr key={_index} className={getDeviceRowFormatting(_value)}>
 				<td>
-					<img src={drone} alt="drone" width="16px" height="16px" />
+					<img src={drone} alt="drone" width="36px" height="36px" />
 				</td>
 				<td>
 					{_value.deviceUID}
@@ -51,32 +53,36 @@ function DevicesDetail(props) {
 		);
 	});
 
+	//*********************************************************************************************************
+
 	return (
-		<table style={props.style}>
-			<tr>
-				<td>
-					Device Type
-				</td>
-				<td>
-					Device UID
-				</td>
-				<td>
-					Online Status
-				</td>
-				<td>
-					Current Latitude,Longitude
-				</td>
-				<td>
-					Previous Latitude,Longitude
-				</td>
-				<td>
-					Moved After Last contact(kms)
-				</td>
-				<td>
-					Current Speed
-				</td>
-			</tr>
-			{getDevices}
+		<table>
+			<tbody>
+				<tr>
+					<td>
+						Device Type
+					</td>
+					<td>
+						Device UID
+					</td>
+					<td>
+						Online Status
+					</td>
+					<td>
+						Current coordinates
+					</td>
+					<td>
+						Previous coordinates
+					</td>
+					<td>
+						Moved After Last contact (kms)
+					</td>
+					<td>
+						Current Speed (kms/hr)
+					</td>
+				</tr>
+				{getDevices}
+			</tbody>
 		</table>
 	)
 }
@@ -88,13 +94,13 @@ class Dashboard extends React.Component {
 		this.state = {
 			devices: [],
 			customDevicesDetail: [],
-			error: null,
-			refreshInterval: null
+			error: null
 		};
 	}
 
 	addPrototypes() {
 		if(Number.prototype.toRadian === undefined) {
+			// eslint-disable-next-line
 			Number.prototype.toRadian = function() {
 				return this * Math.PI / 180;
 			}
@@ -107,8 +113,6 @@ class Dashboard extends React.Component {
 		try {
 			[latitude1, longitude1] = cord1.split(",").map(_n => Number(_n));//explicit type conversion omnce to save multiple auto boxing later.
 			[latitude2, longitude2] = cord2.split(",").map(_n => Number(_n));
-
-			//TODO: check latitude1, longitude1... are non null and are valid numbers and non zero (Number('') === 0). currently skipping the check.
 
 			const diffLatInRadian = (latitude2 - latitude1).toRadian(), diffLongInRadian = (longitude2 - longitude1).toRadian();	
 
@@ -126,80 +130,122 @@ class Dashboard extends React.Component {
 		return res;
 	}
 
+	//speed calculatation assumptions:
+	//If device is moved by .01 kms in 11 seconds, (since last recorded time which is config.deviceRefreshTime),
+	//get the move for 1 second and multiply by 60*60 to get speed.
+	calculateHourlySpeed(lastMove) {
+	 	return Math.round((lastMove / config.deviceRefreshTime) * 60 * 60, 2);
+	}
+
 	componentDidMount() {
-		if(!this.state.customDevicesDetail.length) {
-			buildDevices();
+		if(!this.firstAPICallDone) {
+			this.firstAPICallDone = true;
+			this.buildDevices();
 		}
 	}
 
-	setCustomDevicesDetail() {
-		
+	componentWillUnmount() {
+    	clearInterval(this.refreshInterval);
+  	}
+
+	//whenever new device information is loaded, compare it with the ones saved in state and build the new information.
+	setCustomDevicesDetail(currentDevicesDetails) {
+		let customDevicesDetail;
+		if(this.state.devices.length) {
+			let stateDevices = this.state.devices;
+			customDevicesDetail = currentDevicesDetails.map(device => {
+				let previousCoordinates = null, moved = 0, speed = 0, obj = {};
+
+				obj.deviceUID = device.deviceUID;
+				obj.found = device.found;
+				obj.currentCoordinates = device.coordinates;
+
+				const match = stateDevices.filter(sd => sd.deviceUID === device.deviceUID);
+				if(match.length === 1) {
+					previousCoordinates = match[0].coordinates;
+					moved = this.distanceBetweenCordinatesInKms(previousCoordinates, device.coordinates);
+					speed = this.calculateHourlySpeed(moved);
+				}
+
+				obj.previousCoordinates = previousCoordinates;
+				obj.moved = moved;
+				obj.speed = speed;
+				return obj;
+			});
+		} else {
+			customDevicesDetail = currentDevicesDetails.map(device => {
+				return {
+					deviceUID: device.deviceUID,
+					found: device.found,
+					currentCoordinates: device.coordinates,
+					previousCoordinates: null,
+					moved: 0,
+					speed: 0
+				};
+			});
+		}
+		this.setState({
+			customDevicesDetail: customDevicesDetail
+		});
 	}
 
 	buildDevices() {
 		//contact server to get devices detail
+		const headers = new Headers();
+		headers.append("authorization", config.centralServerApiKey);
+		headers.append("content-type", "application/json");
+
 		fetch(`${config.centralServerEndpoint}/${config.defaultProjectID}`, {
 			method: "GET",
-			headers: new Headers({
-				"authorization": config.centralServerApiKey,
-				"content-type": "application/json"
-			})
+			headers: headers,
+			mode: "cors"
 		})
 		.then(res => res.json())
 		.then(_res => {
 			if(_res.error) {
 				this.setState({
-					error: _res.error;
+					error: _res.error
 				});
-			} else {
+			} else {				
+				//start interval just once.
+				if(!this.refreshInterval) {
+					this.refreshInterval = setInterval(() => this.buildDevices(), config.deviceRefreshTime * 1000);
+				}
+
+				//setup device details as compared to last details and then update the state.
+				this.setCustomDevicesDetail(_res.devices);
 				this.setState({
 					error: null,
 					devices: _res.devices
 				});
-				setCustomDevicesDetail();
 			}
 		})
-		.catch(_err) {
+		.catch(_err => {
 			this.setState({
-				error: "A network error occurred, could be wrong URL.";
+				error: "A network error occurred."
 			});
-		}
-		if(!this.state.refreshInterval) {
-			const interval = setInterval(this.buildDevices(), config.deviceRefreshTime);//save to state
-			this.setState({
-				refreshInterval: interval
-			});
-		}
-	}
-
-	handleRefreshClick() {
-		if(this.state.refreshInterval) {
-			clearInterval(this.state.refreshInterval);
-			this.setState({
-				refreshInterval: null
-			});
-		}
-		buildDevices();
+		})
 	}
 
 	render() {
 		return (
 			<div>
-				<span><h1>Device Dashboard</h1></span>	
+				<div>
+					<span><h1>Device Dashboard</h1></span>	
+				</div>
+				<div className="error">
+					<span>
+						{this.state.error}
+					</span>
+				</div>
+				<div className="project">
+					<span>Displaying all available devices for ProjectID = {config.defaultProjectID}</span>
+				</div>
+				<div className="main">
+					<DevicesDetail devices={this.state.customDevicesDetail} />
+				</div>
+				<Footer refreshTime={config.deviceRefreshTime} />
 			</div>
-			<div className="error">
-				<span className="errormessage">
-					{this.state.error}
-				</span>
-			</div>
-			<div>
-				<span>Displaying all available devices for ProjectID = {config.defaultProjectID}</span>
-			</div>
-			<div class="main">
-				<ProgressMessage style={this.state.deviceLoaded ? "display:none" : "display:block"} />
-				<DevicesDetail devices={this.getDevicesDetail()} />
-			</div>
-			<Footer onClick={this.handleRefreshClick} refreshTime={config.deviceRefreshTime} />
 		);
 	}
 }
