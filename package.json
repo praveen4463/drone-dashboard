@@ -1,0 +1,27 @@
+{
+  "name": "drone-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dashboard for viewing real time drone activity",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/praveen4463/drone-dashboard.git"
+  },
+  "author": "Praveen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/praveen4463/drone-dashboard/issues"
+  },
+  "homepage": "https://github.com/praveen4463/drone-dashboard#readme",
+  "dependencies": {
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1",
+    "react-scripts": "1.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
