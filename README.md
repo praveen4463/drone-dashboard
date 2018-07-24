@@ -41,6 +41,7 @@ To run:
 1) cd into the project
 2) npm install
 3) npm start
+4) npm test (tests are mocked)
 5) server can be tested as localhost:2999
 
 To build Docker image:

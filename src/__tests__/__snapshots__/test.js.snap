@@ -1,0 +1,322 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Dashboard tests Dashboard renders correctly 1`] = `
+<div>
+  <div>
+    <span>
+      <h1>
+        Device Dashboard
+      </h1>
+    </span>
+  </div>
+  <div
+    className="error"
+  >
+    <span />
+  </div>
+  <div
+    className="project"
+  >
+    <span>
+      Displaying all available devices for ProjectID = 
+      999
+    </span>
+  </div>
+  <div
+    className="main"
+  >
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            Device Type
+          </td>
+          <td>
+            Device UID
+          </td>
+          <td>
+            Online Status
+          </td>
+          <td>
+            Current coordinates
+          </td>
+          <td>
+            Previous coordinates
+          </td>
+          <td>
+            Moved After Last contact (kms)
+          </td>
+          <td>
+            Current Speed (kms/hr)
+          </td>
+        </tr>
+        <tr
+          className=""
+        >
+          <td>
+            <img
+              alt="drone"
+              height="36px"
+              src="drone.jpg"
+              width="36px"
+            />
+          </td>
+          <td>
+            drone1
+          </td>
+          <td>
+            Online
+          </td>
+          <td>
+            1,1
+          </td>
+          <td />
+          <td>
+            0
+          </td>
+          <td>
+            0
+          </td>
+        </tr>
+        <tr
+          className=""
+        >
+          <td>
+            <img
+              alt="drone"
+              height="36px"
+              src="drone.jpg"
+              width="36px"
+            />
+          </td>
+          <td>
+            drone2
+          </td>
+          <td>
+            Online
+          </td>
+          <td>
+            2,2
+          </td>
+          <td />
+          <td>
+            0
+          </td>
+          <td>
+            0
+          </td>
+        </tr>
+        <tr
+          className="offline"
+        >
+          <td>
+            <img
+              alt="drone"
+              height="36px"
+              src="drone.jpg"
+              width="36px"
+            />
+          </td>
+          <td>
+            drone1
+          </td>
+          <td>
+            Offline
+          </td>
+          <td />
+          <td />
+          <td>
+            0
+          </td>
+          <td>
+            0
+          </td>
+        </tr>
+        <tr
+          className=""
+        >
+          <td>
+            <img
+              alt="drone"
+              height="36px"
+              src="drone.jpg"
+              width="36px"
+            />
+          </td>
+          <td>
+            drone3
+          </td>
+          <td>
+            Online
+          </td>
+          <td>
+            3,3
+          </td>
+          <td />
+          <td>
+            0
+          </td>
+          <td>
+            0
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div
+    className="footer"
+  >
+    <span>
+      Devices will be contated  and updated automatically after 
+      11
+       seconds.
+    </span>
+    <br />
+    <span>
+      Offline Devices will have a line through on their row and in red.
+    </span>
+    <br />
+    <span>
+      Devices not moving for more than 10 secs will be highlighted in red background.
+    </span>
+    <br />
+  </div>
+</div>
+`;
+
+exports[`Dashboard tests DevicesDetail renders correctly with row formatting 1`] = `
+<table>
+  <tbody>
+    <tr>
+      <td>
+        Device Type
+      </td>
+      <td>
+        Device UID
+      </td>
+      <td>
+        Online Status
+      </td>
+      <td>
+        Current coordinates
+      </td>
+      <td>
+        Previous coordinates
+      </td>
+      <td>
+        Moved After Last contact (kms)
+      </td>
+      <td>
+        Current Speed (kms/hr)
+      </td>
+    </tr>
+    <tr
+      className="highlight"
+    >
+      <td>
+        <img
+          alt="drone"
+          height="36px"
+          src="drone.jpg"
+          width="36px"
+        />
+      </td>
+      <td>
+        device1
+      </td>
+      <td>
+        Online
+      </td>
+      <td>
+        1,1
+      </td>
+      <td>
+        .1,.1
+      </td>
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+    </tr>
+    <tr
+      className=""
+    >
+      <td>
+        <img
+          alt="drone"
+          height="36px"
+          src="drone.jpg"
+          width="36px"
+        />
+      </td>
+      <td>
+        device2
+      </td>
+      <td>
+        Online
+      </td>
+      <td>
+        2,2
+      </td>
+      <td>
+        .2,.2
+      </td>
+      <td>
+        4
+      </td>
+      <td>
+        40
+      </td>
+    </tr>
+    <tr
+      className="offline"
+    >
+      <td>
+        <img
+          alt="drone"
+          height="36px"
+          src="drone.jpg"
+          width="36px"
+        />
+      </td>
+      <td>
+        device3
+      </td>
+      <td>
+        Offline
+      </td>
+      <td />
+      <td />
+      <td>
+        0
+      </td>
+      <td>
+        0
+      </td>
+    </tr>
+  </tbody>
+</table>
+`;
+
+exports[`Dashboard tests Footer renders correctly 1`] = `
+<div
+  className="footer"
+>
+  <span>
+    Devices will be contated  and updated automatically after 
+    11
+     seconds.
+  </span>
+  <br />
+  <span>
+    Offline Devices will have a line through on their row and in red.
+  </span>
+  <br />
+  <span>
+    Devices not moving for more than 10 secs will be highlighted in red background.
+  </span>
+  <br />
+</div>
+`;
